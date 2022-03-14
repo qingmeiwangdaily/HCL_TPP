@@ -41,20 +41,20 @@ def main():
     )
     #
     parser.add_argument(
-        '-m', '--Model', required=True,
+        '-m', '--Model', default = 'conttime',
         choices = ['hawkes', 'hawkesinhib', 'conttime'],
         help='Which model to test? hawkes (SE-MPP)? hawkesinhib (D-SM-MPP)? conttime (N-SM-MPP)?'
     )
     parser.add_argument(
-        '-fd', '--FileData', required=True,
-        help='Path of the dataset (e.g. ./data/data_hawkes/)'
+        '-fd', '--FileData', default = 'data/data/data_retweet',
+        help='Path of the dataset (e.g. ./data/data_retweet/)'
     )
     parser.add_argument(
-        '-fp', '--FilePretrain', required=True,
+        '-fp', '--FilePretrain', default = 'tracks/track_PID=9911_TIME=2022-02-09T20:52:28.346565/model.pkl',
         help='File of pretrained model (e.g. ./tracks/track_PID=XX_TIME=YY/model.pkl)'
     )
     parser.add_argument(
-        '-ts', '--TagSplit', required=True,
+        '-ts', '--TagSplit', default = 'test',
         choices = ['dev', 'test', 'test1'],
         help='Which split to test? Dev or Test?'
     )
@@ -222,7 +222,7 @@ def main():
         'track_period': None,
         'max_epoch': numpy.int32(1),
         'size_batch': numpy.int32(1),
-        #'dim_model': args.DimLSTM,
+        #'pkldim_model': args.DimLSTM,
         'optimizer': 'adam',
         'save_file_path': None,
         'log_file': None,

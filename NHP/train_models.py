@@ -9,7 +9,6 @@ train a continuous-time sequential model
 """
 
 import pickle
-import time
 import numpy
 import theano
 from theano import sandbox
@@ -17,13 +16,13 @@ import theano.tensor as tensor
 import os
 import sys
 #import scipy.io
-from collections import defaultdict
-from theano.tensor.shared_randomstreams import RandomStreams
-import modules.utils as utils
-import modules.models as models
-import modules.optimizers as optimizers
-import modules.controllers as controllers
-import modules.data_processers as data_processers
+# from collections import defaultdict
+# from theano.tensor.shared_randomstreams import RandomStreams
+# import modules.utils as utils
+# import modules.models as models
+# import modules.optimizers as optimizers
+# import modules.controllers as controllers
+# import modules.data_processers as data_processers
 
 import run_models
 import datetime
@@ -31,7 +30,6 @@ import datetime
 dtype=theano.config.floatX
 
 
-#
 import argparse
 __author__ = 'Hongyuan Mei'
 
@@ -40,15 +38,15 @@ def main():
     parser = argparse.ArgumentParser(
         description='Trainning model ... '
     )
-    #
+
     parser.add_argument(
-        '-m', '--Model', required=True,
-        choices = ['hawkes', 'hawkesinhib', 'conttime'],
+        '-m', '--Model', default = 'conttime',
+        # choices = ['hawkes', 'hawkesinhib', 'conttime'],
         help='Which model to train? hawkes (SE-MPP)? hawkesinhib (D-SM-MPP)? conttime (N-SM-MPP)?'
     )
     parser.add_argument(
-        '-fd', '--FileData', required=True,
-        help='Path of the dataset (e.g. ./data/data_hawkes/)'
+        '-fd', '--FileData', default = 'data/data/data_retweet',
+        help='Path of the dataset (e.g. ./data/data_retweet/)'
     )
     #
     parser.add_argument(
@@ -416,4 +414,6 @@ def main():
         print "Model not implemented yet !!! "
     #
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
+

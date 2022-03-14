@@ -20,7 +20,7 @@ trackperiod=100
 prune=0
 seed=12345
 
-. parse_options.sh
+#. parse_options.sh
 
 echo $model
 echo $dataname
@@ -36,9 +36,10 @@ echo $seed
 jobname=model$model.data$dataname.me$maxepoch.d$dimlstm.tr$trainratio.sb$sizebatch.tp$trackperiod.prune$prune.sd$seed
 echo $jobname
 
-module load cuda/7.5
-module load cudnn/5.0
+#module load cuda/7.5
+#module load cudnn/5.0
+
 SCRATCHPATH='/scratch/users/hmei2@jhu.edu'
 export M_ID=$((${SLURM_ARRAY_TASK_ID}-1))
 export THEANO_FLAGS="device=cuda:2"
-python train_models.py -fd ./data/data_$dataname/ -m $model -me $maxepoch -d $dimlstm -tr $trainratio -mt 1 -md 10 -sb $sizebatch -tp $trackperiod -ps $prune -s $seed > $jobname.out
+python train_models.py -fd ./data/data/data_$dataname/ -m $model -me $maxepoch -d $dimlstm -tr $trainratio -mt 1 -md 10 -sb $sizebatch -tp $trackperiod -ps $prune -s $seed > $jobname.out

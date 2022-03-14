@@ -2,7 +2,7 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Remote Python 2.7.18 (sftp://qingmei_wang@183.174.229.150:5102/home/qingmei_wang/miniconda3/envs/Theano/bin/python2.7)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 2.7.18 (sftp://qingmei_wang@183.174.229.150:5102/home/qingmei_wang/miniconda3/envs/python2_7/bin/python2.7)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

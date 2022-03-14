@@ -591,6 +591,8 @@ class NeuralHawkesCTLSTM(object):
         #
         #
         print "initializing Neural Hawkes with Continuous-time LSTM ... "
+        print settings
+        print  settings['path_pre_train']
         if settings['path_pre_train'] == None:
             self.dim_process = settings['dim_process']
             self.dim_time = settings['dim_time']
@@ -648,6 +650,7 @@ class NeuralHawkesCTLSTM(object):
                 model_pre_train = pickle.load(f)
             #with open(settings['path_pre_train'], 'rb') as f:
             #    model_pre_train = pickle.load(f)
+            print model_pre_train
             self.dim_process = model_pre_train['dim_process']
             self.dim_model = model_pre_train['dim_model']
             self.dim_time = model_pre_train['dim_time']
@@ -1675,6 +1678,7 @@ class NeuralHawkesCTLSTM(object):
     def save_model(self, file_save):
         model_dict = self.get_model()
         print "saving model ... "
+        print model_dict
         with open(file_save, 'wb') as f:
             pickle.dump(model_dict, f)
         #
