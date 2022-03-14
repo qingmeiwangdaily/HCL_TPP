@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteMappingsManager">
+    <list>
+      <list>
+        <remote-mappings server-id="python@sftp://qingmeiwang@183.174.229.140:5102/home/qingmeiwang/miniconda3/envs/python2_7/bin/python2.7" />
+        <remote-mappings server-id="python@sftp://qingmei_wang@183.174.229.150:5102/home/qingmei_wang/miniconda3/envs/torch1.4.0_python3.7./bin/python3.7">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$/../SAHP" remote-root="/home/qingmei_wang/SAHP" />
+            </list>
+          </settings>
+        </remote-mappings>
+        <remote-mappings server-id="python@sftp://qingmei_wang@183.174.229.150:5102/home/qingmei_wang/miniconda3/envs/python2_7/bin/python2.7">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$" remote-root="/home/qingmei_wang/neurawkes-master" />
+            </list>
+          </settings>
+        </remote-mappings>
+      </list>
+    </list>
+  </component>
+</project>
