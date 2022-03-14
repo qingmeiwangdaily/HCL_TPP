@@ -1,0 +1,6 @@
+data/
+log/
+
+__pycache__/
+.idea/
+
