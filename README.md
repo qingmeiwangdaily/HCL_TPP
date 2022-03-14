@@ -1,0 +1,6 @@
+HP & NHP  reference paper is  The Neural Hawkes Process.  (NeurIPS 2017)
+ERPP reference paper is Modeling the intensity function of point process via recurrent neural networks. (AAAI 2017)
+RMTPP reference paper is Recurrent marked temporal point processes: Embedding event history to vectore. (KDD 2016)
+SAHP reference paper is  Self-Attentive Hawkes Processes. (ICML 2020)
+THP reference paper is  Transformer Hawkes Process .(ICML 2020)
+A-NHP  reference paper is  Transformer Embeddings of Irregularly Spaced Events and Their Participants. (arXiv 2021)
