@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="qingmei_wang@183.174.229.150:5102 (6)" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="qingmei_wang@183.174.229.150:5102 (6)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/qingmei_wang/neurawkes-master" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="qingmei_wang@183.174.229.150:5102 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/qingmei_wang/neurawkes-master" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="qingmei_wang@183.174.229.150:5102 password (3)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="qingmei_wang@183.174.229.150:5102 password (4)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/qingmei_wang/neurawkes-master" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="qingmei_wang@183.174.229.150:5102 password (5)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/qingmei_wang/neurawkes-master" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="qingmei_wang@183.174.229.150:5102 password (6)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/qingmei_wang/neurawkes-master" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="qingmeiwang@183.174.229.140:5102 (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
