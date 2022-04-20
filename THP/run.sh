@@ -1,7 +1,7 @@
 device=0
 data=./data/data_retweet/
-batch=4
-n_head=4
+batch=2
+n_head=3
 n_layers=4
 d_model=512
 d_rnn=64

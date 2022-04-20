@@ -26,6 +26,7 @@ def prepare_dataloader(opt):
 
     print('[Info] Loading train data...')
     train_data, num_types = load_data(opt.data + 'train.pkl', 'train')
+    #print(train_data.shape)
     print('[Info] Loading dev data...')
     dev_data, _ = load_data(opt.data + 'dev.pkl', 'dev')
     print('[Info] Loading test data...')
@@ -46,10 +47,12 @@ def train_epoch(model, training_data, optimizer, pred_loss_func, opt):
     total_event_rate = 0  # cumulative number of correct prediction
     total_num_event = 0  # number of total events
     total_num_pred = 0  # number of predictions
-    for batch in tqdm(training_data, mininterval=2,
-                      desc='  - (Training)   ', leave=False):
+    for batch in training_data:
         """ prepare data """
-        event_time, time_gap, event_type = map(lambda x: x.to(opt.device), batch)
+        # event_time, time_gap, event_type = map(lambda x: x.to(opt.device), batch)
+        event_time, time_gap, event_type = batch[0].to(opt.device), batch[1].to(opt.device), batch[2].to(opt.device)
+        print("batch size", [len(batch1) for batch1 in batch])
+
 
         """ forward """
         optimizer.zero_grad()
@@ -232,6 +235,7 @@ def main():
 
     """ train the model """
     train(model, trainloader, testloader, optimizer, scheduler, pred_loss_func, opt)
+    torch.save(model.state_dict(), args.save_dir + "/model.iter-" + str(total_step))
 
 
 if __name__ == '__main__':

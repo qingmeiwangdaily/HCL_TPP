@@ -82,13 +82,17 @@ class Encoder(nn.Module):
         tem_enc = self.temporal_enc(event_time, non_pad_mask)
         enc_output = self.event_emb(event_type)
 
+        enc_attn_list = []
         for enc_layer in self.layer_stack:
             enc_output += tem_enc
-            enc_output, _ = enc_layer(
+            enc_output, enc_attn = enc_layer(
                 enc_output,
                 non_pad_mask=non_pad_mask,
                 slf_attn_mask=slf_attn_mask)
-        return enc_output
+            enc_attn_list.append(enc_attn)
+        # print(enc_output)
+        return enc_output, enc_attn_list
+
 
 
 class Predictor(nn.Module):
@@ -182,11 +186,11 @@ class Transformer(nn.Module):
 
         non_pad_mask = get_non_pad_mask(event_type)
 
-        enc_output = self.encoder(event_type, event_time, non_pad_mask)
+        enc_output, enc_attn = self.encoder(event_type, event_time, non_pad_mask)
         enc_output = self.rnn(enc_output, non_pad_mask)
 
         time_prediction = self.time_predictor(enc_output, non_pad_mask)
 
         type_prediction = self.type_predictor(enc_output, non_pad_mask)
 
-        return enc_output, (type_prediction, time_prediction)
+        return enc_output, enc_attn, (type_prediction, time_prediction)

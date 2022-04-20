@@ -1,5 +1,9 @@
 import torch.nn as nn
-
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from collections import Counter
 from transformer.SubLayers import MultiHeadAttention, PositionwiseFeedForward
 
 
@@ -17,8 +21,16 @@ class EncoderLayer(nn.Module):
         enc_output, enc_slf_attn = self.slf_attn(
             enc_input, enc_input, enc_input, mask=slf_attn_mask)
         enc_output *= non_pad_mask
-
         enc_output = self.pos_ffn(enc_output)
         enc_output *= non_pad_mask
 
+        # print('[Info] enc_slf_attn: {}'.format(enc_slf_attn))
+        # print(enc_slf_attn.shape)
+        # enc_slf_attn = enc_slf_attn.cpu().detach().numpy()
+        # plt.matshow(enc_slf_attn[0,0,:,:])
+        # plt.show()
+        # plt.savefig("1.png")
+        # plt.close()
+
         return enc_output, enc_slf_attn
+
