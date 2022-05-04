@@ -185,12 +185,12 @@ class Transformer(nn.Module):
         """
 
         non_pad_mask = get_non_pad_mask(event_type)
+                                #[ batch_size, seq_len]
+        enc_output = self.encoder(event_type, event_time, non_pad_mask) # [batch_size,seq_len,model_dim]
+        enc_output = self.rnn(enc_output, non_pad_mas）
 
-        enc_output, enc_attn = self.encoder(event_type, event_time, non_pad_mask)
-        enc_output = self.rnn(enc_output, non_pad_mask)
+        time_prediction = self.time_predictor(enc_output, non_pad_mask) #[batch_size,seq_len]
 
-        time_prediction = self.time_predictor(enc_output, non_pad_mask)
+        type_prediction = self.type_predictor(enc_output, non_pad_mask) #[batch_size,seq_len,num_classes]
 
-        type_prediction = self.type_predictor(enc_output, non_pad_mask)
-
-        return enc_output, enc_attn, (type_prediction, time_prediction)
+        return enc_output, (type_prediction, time_prediction)
