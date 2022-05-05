@@ -49,7 +49,7 @@ class Encoder(nn.Module):
         # position vector, used for temporal encoding
         self.position_vec = torch.tensor(
             [math.pow(10000.0, 2.0 * (i // 2) / d_model) for i in range(d_model)],
-            device=torch.device('cuda'))
+            device=torch.device('cuda:2'))
 
         # event type embedding
         self.event_emb = nn.Embedding(num_types + 1, d_model, padding_idx=Constants.PAD)
@@ -80,19 +80,15 @@ class Encoder(nn.Module):
         slf_attn_mask = (slf_attn_mask_keypad + slf_attn_mask_subseq).gt(0)
 
         tem_enc = self.temporal_enc(event_time, non_pad_mask)
-        enc_output = self.event_emb(event_type)
+        enc_output = self.event_emb(event_type) # [batch_size,seql_Len,d_model]
 
-        enc_attn_list = []
         for enc_layer in self.layer_stack:
             enc_output += tem_enc
-            enc_output, enc_attn = enc_layer(
+            enc_output, _ = enc_layer(
                 enc_output,
                 non_pad_mask=non_pad_mask,
                 slf_attn_mask=slf_attn_mask)
-            enc_attn_list.append(enc_attn)
-        # print(enc_output)
-        return enc_output, enc_attn_list
-
+        return enc_output
 
 
 class Predictor(nn.Module):
