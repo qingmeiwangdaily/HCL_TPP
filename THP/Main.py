@@ -1,3 +1,5 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
 import argparse
 import numpy as np
 import pickle
@@ -26,14 +28,14 @@ def prepare_dataloader(opt):
 
     print('[Info] Loading train data...')
     train_data, num_types = load_data(opt.data + 'train.pkl', 'train')
-    #print(train_data.shape)
     print('[Info] Loading dev data...')
     dev_data, _ = load_data(opt.data + 'dev.pkl', 'dev')
     print('[Info] Loading test data...')
     test_data, _ = load_data(opt.data + 'test.pkl', 'test')
-
+    print(train_data)
     trainloader = get_dataloader(train_data, opt.batch_size, shuffle=True)
     testloader = get_dataloader(test_data, opt.batch_size, shuffle=False)
+
     return trainloader, testloader, num_types
 
 
@@ -47,13 +49,12 @@ def train_epoch(model, training_data, optimizer, pred_loss_func, opt):
     total_event_rate = 0  # cumulative number of correct prediction
     total_num_event = 0  # number of total events
     total_num_pred = 0  # number of predictions
-    for batch in training_data:
+
+    for batch in tqdm(training_data, mininterval=2,
+                      desc='  - (Training)   ', leave=False):
         """ prepare data """
-        # event_time, time_gap, event_type = map(lambda x: x.to(opt.device), batch)
-        event_time, time_gap, event_type = batch[0].to(opt.device), batch[1].to(opt.device), batch[2].to(opt.device)
-        print("batch size", [len(batch1) for batch1 in batch])
-
-
+        event_time, time_gap, event_type = map(lambda x: x.to(opt.device), batch)
+        # event_time [batch_size,1]
         """ forward """
         optimizer.zero_grad()
 
@@ -61,18 +62,30 @@ def train_epoch(model, training_data, optimizer, pred_loss_func, opt):
 
         """ backward """
         # negative log-likelihood
-        event_ll, non_event_ll = Utils.log_likelihood(model, enc_out, event_time, event_type)
-        event_loss = -torch.sum(event_ll - non_event_ll)
+        # event_ll, non_event_ll = Utils.log_likelihood(model, enc_out, event_time, event_type)
+
+        # event_loss = -torch.sum(event_ll - non_event_ll)
 
         # type prediction
-        pred_loss, pred_num_event = Utils.type_loss(prediction[0], event_type, pred_loss_func)
+        # pred_loss, pred_num_event = Utils.type_loss(prediction[0], event_type, pred_loss_func)
 
         # time prediction
-        se = Utils.time_loss(prediction[1], event_time)
+        # se = Utils.time_loss(prediction[1], event_time)
 
         # SE is usually large, scale it to stabilize training
         scale_time_loss = 100
-        loss = event_loss + pred_loss + se / scale_time_loss
+        # loss = event_loss + pred_loss + se / scale_time_loss
+
+        # event-level contrastive learning
+        loss_event = Utils.event_loss()
+
+        # sequence-level contrastive learning
+        loss_sequence = Utils.seqence_loss()
+
+        # log like
+        loss_log = Utils.log_likelihood()
+        loss = self.lamda_1 * loss_event + self.lamda_2 * loss_sequence + loss_log
+
         loss.backward()
 
         """ update parameters """
@@ -193,7 +206,7 @@ def main():
     opt = parser.parse_args()
 
     # default device is CUDA
-    opt.device = torch.device('cuda:0')
+    opt.device = torch.device('cuda:2')
 
     # setup the log file
 
@@ -228,14 +241,13 @@ def main():
         pred_loss_func = Utils.LabelSmoothingLoss(opt.smooth, num_types, ignore_index=-1)
     else:
         pred_loss_func = nn.CrossEntropyLoss(ignore_index=-1, reduction='none')
-
-    """ number of parameters """
-    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print('[Info] Number of parameters: {}'.format(num_params))
+    #
+    # """ number of parameters """
+    # num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    # print('[Info] Number of parameters: {}'.format(num_params))
 
     """ train the model """
     train(model, trainloader, testloader, optimizer, scheduler, pred_loss_func, opt)
-    torch.save(model.state_dict(), args.save_dir + "/model.iter-" + str(total_step))
 
 
 if __name__ == '__main__':
