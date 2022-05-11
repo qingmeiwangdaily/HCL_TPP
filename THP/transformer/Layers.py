@@ -24,7 +24,6 @@ class EncoderLayer(nn.Module):
         
         enc_slf_attn_map = enc_slf_attn.cpu().detach().numpy()
         plt.matshow(enc_slf_attn_map[0, 0, :, :])
-        # plt.savefig("./1.png")
         plt.show()
         # plt.close()
 

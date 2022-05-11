@@ -80,7 +80,7 @@ def train_epoch(model, training_data, optimizer, pred_loss_func, opt):
         loss_event = Utils.event_loss()
 
         # sequence-level contrastive learning
-        loss_sequence = Utils.seqence_loss()
+        loss_sequence = Utils.sequence_loss()
 
         # log like
         loss_log = Utils.log_likelihood()
@@ -186,7 +186,7 @@ def main():
     parser.add_argument('-data', required=True)
 
     parser.add_argument('-epoch', type=int, default=30)
-    parser.add_argument('-batch_size', type=int, default=16)
+    parser.add_argument('-batch_size', type=int, default=1)
 
     parser.add_argument('-d_model', type=int, default=64)
     parser.add_argument('-d_rnn', type=int, default=256)
@@ -228,6 +228,7 @@ def main():
         n_head=opt.n_head,
         d_k=opt.d_k,
         d_v=opt.d_v,
+
         dropout=opt.dropout,
     )
     model.to(opt.device)
@@ -243,7 +244,7 @@ def main():
         pred_loss_func = nn.CrossEntropyLoss(ignore_index=-1, reduction='none')
     #
     # """ number of parameters """
-    # num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    # num_params = sum(p.number() for p in model.parameters() if p.requires_grad)
     # print('[Info] Number of parameters: {}'.format(num_params))
 
     """ train the model """

@@ -1,4 +1,4 @@
-device=0
+device=2
 data=./data/data_retweet/
 batch=2
 n_head=3

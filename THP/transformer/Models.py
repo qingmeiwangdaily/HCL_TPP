@@ -53,7 +53,8 @@ class Encoder(nn.Module):
 
         # event type embedding
         self.event_emb = nn.Embedding(num_types + 1, d_model, padding_idx=Constants.PAD)
-
+        self.event_emb_N = nn.Embedding(num_types + 1, d_model, padding_idx=Constants.PAD)
+        self.event_emb_P = nn.Embedding(num_types + 1, d_model, padding_idx=Constants.PAD)
         self.layer_stack = nn.ModuleList([
             EncoderLayer(d_model, d_inner, n_head, d_k, d_v, dropout=dropout, normalize_before=False)
             for _ in range(n_layers)])
@@ -80,7 +81,7 @@ class Encoder(nn.Module):
         slf_attn_mask = (slf_attn_mask_keypad + slf_attn_mask_subseq).gt(0)
 
         tem_enc = self.temporal_enc(event_time, non_pad_mask)
-        enc_output = self.event_emb(event_type) # [batch_size,seql_Len,d_model]
+        enc_output = self.event_emb(event_type) # [batch_size,seq_Len,d_model]
 
         for enc_layer in self.layer_stack:
             enc_output += tem_enc
@@ -183,7 +184,7 @@ class Transformer(nn.Module):
         non_pad_mask = get_non_pad_mask(event_type)
                                 #[ batch_size, seq_len]
         enc_output = self.encoder(event_type, event_time, non_pad_mask) # [batch_size,seq_len,model_dim]
-        enc_output = self.rnn(enc_output, non_pad_mas）
+        enc_output = self.rnn(enc_output, non_pad_mask)
 
         time_prediction = self.time_predictor(enc_output, non_pad_mask) #[batch_size,seq_len]
 
