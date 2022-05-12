@@ -1,8 +1,7 @@
 import torch.nn as nn
-import matplotlib.pyplot as plt
 
 from transformer.SubLayers import MultiHeadAttention, PositionwiseFeedForward
-import matplotlib.pyplot as plt
+
 
 class EncoderLayer(nn.Module):
     """ Compose with two layers """
@@ -21,10 +20,5 @@ class EncoderLayer(nn.Module):
 
         enc_output = self.pos_ffn(enc_output)
         enc_output *= non_pad_mask
-        
-        enc_slf_attn_map = enc_slf_attn.cpu().detach().numpy()
-        plt.matshow(enc_slf_attn_map[0, 0, :, :])
-        plt.show()
-        # plt.close()
 
         return enc_output, enc_slf_attn

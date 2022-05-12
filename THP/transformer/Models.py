@@ -46,15 +46,19 @@ class Encoder(nn.Module):
 
         self.d_model = d_model
 
+
         # position vector, used for temporal encoding
+        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # base = torch.full(d_model, fill_value=10000.0, device=device)
+        # expo = torch.arange(d_model, device=device) // 2 * 2 / d_model
+        # self.position_vec = torch.pow(base, expo)
         self.position_vec = torch.tensor(
             [math.pow(10000.0, 2.0 * (i // 2) / d_model) for i in range(d_model)],
-            device=torch.device('cuda:2'))
+            device=torch.device('cuda'))
 
         # event type embedding
         self.event_emb = nn.Embedding(num_types + 1, d_model, padding_idx=Constants.PAD)
-        self.event_emb_N = nn.Embedding(num_types + 1, d_model, padding_idx=Constants.PAD)
-        self.event_emb_P = nn.Embedding(num_types + 1, d_model, padding_idx=Constants.PAD)
+
         self.layer_stack = nn.ModuleList([
             EncoderLayer(d_model, d_inner, n_head, d_k, d_v, dropout=dropout, normalize_before=False)
             for _ in range(n_layers)])
@@ -65,7 +69,9 @@ class Encoder(nn.Module):
         Output: batch*seq_len*d_model.
         """
 
-        result = time.unsqueeze(-1) / self.position_vec
+        result = time.unsqueeze(-1) /self.position_vec
+        # print(time)
+        # print(self.position_vec)
         result[:, :, 0::2] = torch.sin(result[:, :, 0::2])
         result[:, :, 1::2] = torch.cos(result[:, :, 1::2])
         return result * non_pad_mask
@@ -81,7 +87,7 @@ class Encoder(nn.Module):
         slf_attn_mask = (slf_attn_mask_keypad + slf_attn_mask_subseq).gt(0)
 
         tem_enc = self.temporal_enc(event_time, non_pad_mask)
-        enc_output = self.event_emb(event_type) # [batch_size,seq_Len,d_model]
+        enc_output = self.event_emb(event_type)
 
         for enc_layer in self.layer_stack:
             enc_output += tem_enc
@@ -182,12 +188,12 @@ class Transformer(nn.Module):
         """
 
         non_pad_mask = get_non_pad_mask(event_type)
-                                #[ batch_size, seq_len]
-        enc_output = self.encoder(event_type, event_time, non_pad_mask) # [batch_size,seq_len,model_dim]
+
+        enc_output = self.encoder(event_type, event_time, non_pad_mask)
         enc_output = self.rnn(enc_output, non_pad_mask)
 
-        time_prediction = self.time_predictor(enc_output, non_pad_mask) #[batch_size,seq_len]
+        time_prediction = self.time_predictor(enc_output, non_pad_mask)
 
-        type_prediction = self.type_predictor(enc_output, non_pad_mask) #[batch_size,seq_len,num_classes]
+        type_prediction = self.type_predictor(enc_output, non_pad_mask)
 
         return enc_output, (type_prediction, time_prediction)

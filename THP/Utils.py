@@ -96,61 +96,9 @@ def type_loss(prediction, types, loss_func):
     else:
         loss = loss_func(prediction.transpose(1, 2), truth)
 
-
     loss = torch.sum(loss)
     return loss, correct_num
-def event_loss(lambda_t,c):
-    # lambda_t [d]
-    # c = [1]
 
-    event_loss = torch.log(lambda_t[c] /torch.sum(lambda_t))
-    log_loss =  0
-    for i in range(len(lambda_t)):
-        if i != c:
-            log_loss += torch.log(1-(lambda_t[i]/torch.sum(lambda_t)))
-    loss = log_loss + event_loss
-
-    return loss
-
-# def sequence_loss(e,e_p,e_N):
-#     exp_inner = torch.exp(torch.matmul(e.transpose(), e_p))
-#     sum_exp = torch.sum( [torch.exp(torch.matmul(e.transpose(), e_n)) for e_n in e_N] )
-#     logs_loss = torch.log( exp_inner / (sum_exp + exp_inner))
-#
-#     frac_inner = [ torch.exp(torch.matmul(e.transpose(), e_n)) for e_n in e_N]  #
-#     frac_inner = [ inner / (sum_exp + exp_inner) for inner in frac_inner]
-#
-#     seq_loss = torch.sum(torch.log([1-inner for inner in frac_inner]))
-#
-#     return seq_loss
-
-def sequence_loss(e,e_p,e_N):
-    exp_inner = torch.sum(e * e_p)
-    sum_exp = sum( [torch.exp(torch.sum(e * e_n)) for e_n in e_N] )
-
-    logs_loss = torch.log( exp_inner / (sum_exp + exp_inner))
-
-    frac_inner = [ torch.exp(torch.sum(e * e_n)) for e_n in e_N]  #
-    # print(frac_inner)
-    frac_inner = [ inner / (sum_exp + exp_inner) for inner in frac_inner]
-    # print(frac_inner)
-    seq_loss = sum([torch.log(1-inner) for inner in frac_inner])
-
-    return seq_loss
-# if __name__ == '__main__':
-#     d = 10
-#     K = 5
-#     e = torch.rand([1,10]) # [batch_size,d]
-#     e_p = torch.rand([1,10]) # [batch_size,d]
-#     e_N = torch.rand([1,5,10]) # [batch_size,k,d]
-#
-#
-#     x = torch.rand(10) # [d]
-#     c = 1
-#     print( event_loss(x,c))
-
-def log_loss():
-    return 0
 
 def time_loss(prediction, event_time):
     """ Time prediction loss. """
@@ -197,6 +145,3 @@ class LabelSmoothingLoss(nn.Module):
         loss = -(one_hot * log_prb).sum(dim=-1)
         loss = loss * non_pad_mask
         return loss
-
-
-
