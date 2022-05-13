@@ -275,7 +275,6 @@ class TransformerHawkes(nn.Module):
         """
 
         non_pad_mask = get_non_pad_mask(event_type)
-
         enc_output, enc_att = self.encoder(event_type, event_time, non_pad_mask)
         # print(enc_output.shape, non_pad_mask.shape)
         # enc_output = self.rnn(enc_output, non_pad_mask)
@@ -286,4 +285,4 @@ class TransformerHawkes(nn.Module):
         time_prediction = self.time_predictor(enc_output, non_pad_mask)
         type_prediction = self.type_predictor(enc_output, non_pad_mask)
 
-        return enc_output, enc_att, all_lambda, (type_prediction, time_prediction)
+        return enc_output, enc_att, all_lambda, non_pad_mask, (type_prediction, time_prediction)

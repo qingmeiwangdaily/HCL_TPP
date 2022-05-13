@@ -72,4 +72,4 @@ class LowRankHawkes(nn.Module):
         time_prediction = self.time_predictor(enc_output, non_pad_mask)
         type_prediction = self.type_predictor(enc_output, non_pad_mask)
 
-        return enc_output, enc_att, all_lambda, (type_prediction, time_prediction)
+        return enc_output, enc_att, all_lambda, non_pad_mask, (type_prediction, time_prediction)
