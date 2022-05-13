@@ -144,17 +144,10 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
 
         start = time.time()
         valid_event, valid_type, valid_time = evaluation(model, dataloaders['val'], pred_loss_func, opt)
-        print('  - (Testing)     loglikelihood: {ll: 8.5f}, '
+        print('  - (Validating)     loglikelihood: {ll: 8.5f}, '
               'accuracy: {type: 8.5f}, RMSE: {rmse: 8.5f}, '
               'elapse: {elapse:3.3f} min'
               .format(ll=valid_event, type=valid_type, rmse=valid_time, elapse=(time.time() - start) / 60))
-
-        valid_event_losses += [valid_event]
-        valid_pred_losses += [valid_type]
-        valid_rmse += [valid_time]
-        print('  - [Info] Maximum ll: {event: 8.5f}, '
-              'Maximum accuracy: {pred: 8.5f}, Minimum RMSE: {rmse: 8.5f}'
-              .format(event=max(valid_event_losses), pred=max(valid_pred_losses), rmse=min(valid_rmse)))
 
         start = time.time()
         test_event, test_type, test_time = evaluation(model, dataloaders['test'], pred_loss_func, opt)

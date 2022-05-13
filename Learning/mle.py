@@ -78,7 +78,7 @@ def train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
 
         start = time.time()
         valid_event, valid_type, valid_time = evaluation(model, dataloaders['val'], pred_loss_func, opt)
-        print('  - (validating)     loglikelihood: {ll: 8.5f}, '
+        print('  - (Validating)     loglikelihood: {ll: 8.5f}, '
               'accuracy: {type: 8.5f}, RMSE: {rmse: 8.5f}, '
               'elapse: {elapse:3.3f} min'
               .format(ll=valid_event, type=valid_type, rmse=valid_time, elapse=(time.time() - start) / 60))
