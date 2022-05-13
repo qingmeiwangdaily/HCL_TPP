@@ -126,18 +126,116 @@ def prepare_dataloader(data_folder_name: str, batch_size: int) -> Tuple[Dict[str
     return dataloaders, num_types
 
 
-# TODO: Data augment
-def random_superpose(event_type: torch.Tensor, event_time: torch.Tensor):
+# Data augmentation operation
+def sorting(event_type: torch.Tensor, event_time: torch.Tensor):
     """
-    Randomly superpose event sequences
+    Sort each sequence in the ascending order of time
+    """
+    batch = event_time.shape[0]
+    idx = torch.argsort(event_time, dim=1, descending=False)
+    for b in range(batch):
+        event_time[b, :] = event_time[b, idx[b, :]]
+        event_type[b, :] = event_type[b, idx[b, :]]
+    return event_type, event_time
 
-    :param
+
+def reorganize(event_type: torch.Tensor, event_time: torch.Tensor):
     """
-    return None
+    Move zeros to the end of each sequence
+    """
+    batch = event_time.shape[0]
+    for b in range(batch):
+        tmp_time = event_time[b, :]
+        tmp_type = event_type[b, :]
+        event_time[b, :] = torch.cat((tmp_time[tmp_type != 0], tmp_time[tmp_type == 0]), dim=0)
+        event_type[b, :] = torch.cat((tmp_type[tmp_type != 0], tmp_type[tmp_type == 0]), dim=0)
+    len_max = torch.max(torch.sum(event_type != 0))
+    return event_type[:, :len_max], event_time[:, :len_max]
 
 
-def thinning_process(event_type: torch.Tensor, event_time: torch.Tensor, probability: torch.Tensor):
+def shift_and_superpose(event_type: torch.Tensor, event_time: torch.Tensor):
     """
-    Randomly thinning event sequences to obtain positive and negative sequences
+    Superpose event sequences with their shifted versions
+
+    Input: event_type: batch*seq_len;
+           event_time: batch*seq_len.
+    Output: new event_type: batch * (2 * seq_len)
+            new event_time: batch * (2 * seq_len)
     """
-    return None
+    batch = event_time.shape[0]
+    shift = int(batch / 2)
+    shift_type = torch.cat((event_type[shift:, :], event_type[:shift, :]), dim=0)
+    shift_time = torch.cat((event_time[shift:, :], event_time[:shift, :]), dim=0)
+    new_type = torch.cat((event_type, shift_type), dim=1)  # batch * (2seq_len)
+    new_time = torch.cat((event_time, shift_time), dim=1)  # batch * (2seq_len)
+    new_type, new_time = sorting(new_type, new_time)
+    # idx = torch.argsort(new_time, dim=1, descending=False)
+    # for b in range(batch):
+    #     new_time[b, :] = new_time[b, idx[b, :]]
+    #     new_type[b, :] = new_type[b, idx[b, :]]
+    #     tmp_time = new_time[b, idx[b, :]]
+    #     tmp_type = new_type[b, idx[b, :]]
+    #     new_time[b, :] = torch.cat((tmp_time[tmp_type != 0], tmp_time[tmp_type == 0]), dim=0)
+    #     new_type[b, :] = torch.cat((tmp_type[tmp_type != 0], tmp_type[tmp_type == 0]), dim=0)
+    return reorganize(new_type, new_time)
+
+
+def thinning_process_deterministic(event_type: torch.Tensor, event_time: torch.Tensor,
+                                   significance: torch.Tensor, ratio_remove: float = 0.2):
+    """
+    Deterministically thinning event sequences guided by a probability/significance
+    Input: event_type: batch * seq_len;
+           event_time: batch * seq_len;
+           significance: batch * seq_len, the significance of the events per sequence
+           num_neg: the number of negative sequences per observed sequence
+           ratio_remove: the ratio of removed events per sequence, in the range (0, 1)
+    Output: thinned event_type: batch * [seq_len * (1 - ratio_remove)]
+            thinned event_time: batch * [seq_len * (1 - ratio_remove)]
+    """
+    batch, seq_len = event_type.shape
+    new_len = int(seq_len * (1 - ratio_remove))
+    idx = torch.argsort(significance, dim=1, descending=True)
+    thinned_type = torch.zeros_like(event_type)
+    thinned_time = torch.zeros_like(event_time)
+    for b in range(batch):
+        num_events = torch.sum(event_type[b, :] > 0)
+        new_len_b = int(num_events * (1 - ratio_remove))
+        thinned_type[b, :new_len_b] = event_type[b, idx[b, :new_len_b]]
+        thinned_time[b, :new_len_b] = event_time[b, idx[b, :new_len_b]]
+    new_type, new_time = sorting(thinned_type[:, :new_len], thinned_time[:, :new_len])
+    return reorganize(new_type, new_time)
+
+
+def thinning_process_random(event_type: torch.Tensor, event_time: torch.Tensor, ratio_remove: float = 0.5):
+    """
+    Randomly thinning event sequences with a relatively-high removal ratio
+        Input: event_type: batch * seq_len;
+               event_time: batch * seq_len;
+               num_neg: the number of negative sequences per observed sequence
+               ratio_remove: the ratio of removed events per sequence, in the range (0, 1)
+        Output: thinned event_type: batch * [seq_len * (1 - ratio_remove)]
+                thinned event_time: batch * [seq_len * (1 - ratio_remove)]
+    """
+    rv = torch.rand_like(event_time) * (event_type > 0)
+    return thinning_process_deterministic(event_type, event_time, rv, ratio_remove)
+
+
+def sampling_positive_seqs(event_type: torch.Tensor, event_time: torch.Tensor,
+                           significance: torch.Tensor, ratio_remove: float = 0.2):
+    """
+    Sampling positive sequences based on the significance of the events guided by the model
+    """
+    return thinning_process_deterministic(event_type, event_time, significance, ratio_remove)
+
+
+def sampling_negative_seqs(event_type: torch.Tensor, event_time: torch.Tensor,
+                           num_neg: int = 5, ratio_remove: float = 0.5):
+    """
+    Sampling negative sequences by randomly removing some events
+    """
+    neg_type, neg_time = thinning_process_random(event_type, event_time, ratio_remove)
+    for k in range(num_neg - 1):
+        tmp_type, tmp_time = thinning_process_random(event_type, event_time, ratio_remove)
+        neg_type = torch.cat((neg_type, tmp_type), dim=0)
+        neg_time = torch.cat((neg_time, tmp_time), dim=0)
+    return neg_type, neg_time
