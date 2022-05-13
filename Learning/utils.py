@@ -43,9 +43,9 @@ def compute_integral_unbiased(model, data, time, non_pad_mask, type_mask):
 
 def log_likelihood(all_lambda, time, types, non_pad_mask):
     """ Log-likelihood of sequence. """
-    non_pad_mask = non_pad_mask.squeeze(2)
+    non_pad_mask = non_pad_mask.squeeze(2)  # batch * seq_len
     num_types = all_lambda.shape[2]
-    type_mask = torch.zeros([*types.size(), num_types], device=all_lambda.device)
+    type_mask = torch.zeros([*types.size(), num_types], device=all_lambda.device)  # batch * seq_len * num_types
     for i in range(num_types):
         type_mask[:, :, i] = (types == i + 1).bool().to(all_lambda.device)
 

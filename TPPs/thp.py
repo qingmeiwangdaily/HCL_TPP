@@ -175,7 +175,6 @@ class Encoder(nn.Module):
 
     def forward(self, event_type, event_time, non_pad_mask):
         """ Encode event sequences via masked self-attention. """
-
         # prepare attention masks
         # slf_attn_mask is where we cannot look, i.e., the future and the padding
         slf_attn_mask_subseq = get_subsequent_mask(event_type)
@@ -233,7 +232,7 @@ class TransformerHawkes(nn.Module):
     def __init__(
             self,
             num_types: int, d_model: int = 256, d_rnn: int = 128, d_inner: int = 1024,
-            n_layers: int = 3, n_head: int = 4, d_k: int = 64, d_v: int = 64, dropout: float = 0.1):
+            n_layers: int = 4, n_head: int = 4, d_k: int = 64, d_v: int = 64, dropout: float = 0.1):
         super().__init__()
 
         self.encoder = Encoder(
