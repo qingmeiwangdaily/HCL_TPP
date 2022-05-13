@@ -172,4 +172,14 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
             f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
                     .format(epoch=epoch, ll=valid_event, acc=valid_type, rmse=valid_time))
 
+        if epoch_i == opt.epoch - 1:
+            with open('result.log', 'a') as f:
+                paras = 'w_mle' + '-' + str(opt.w_mle) + "; " + 'w_dis' + '-' + str(opt.w_dis) + "; " + 'w_cl1' + "-" + str(opt.w_cl1) + "; " + 'w_cl2' + "-" + str(opt.w_cl2) + "; " + 'superpose' + "-" + str(opt.superpose) + "; " + 'num_neg' + "-" + str(opt.num_neg)
+                f.write('[Info] Model: {}\n'.format(opt.model + ' ' + opt.save_label))
+                f.write('[Info] main parameters: {}\n'.format(paras))
+                f.write('[Info] all parameters: {}\n'.format(opt))
+                f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
+                        .format(epoch=epoch, ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
+                                rmse=test_rmse[max_idx]))
+                f.write('\n\n')
         scheduler.step()

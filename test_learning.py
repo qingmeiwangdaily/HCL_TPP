@@ -16,7 +16,7 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data-folder', type=str, default=os.path.join('tpp-data', 'data_retweet'))
+    parser.add_argument('-data-folder', type=str, default='tpp-data/data_retweet')
 
     parser.add_argument('-epoch', type=int, default=1)
     parser.add_argument('-batch-size', type=int, default=16)
@@ -42,6 +42,11 @@ def main():
     parser.add_argument('-w-cl2', type=float, default=0)
     parser.add_argument('-num-neg', type=int, default=5)
     parser.add_argument('-superpose', type=bool, default=False)
+
+    # for result_log
+    parser.add_argument('-model', type=str, default='MLE')
+    parser.add_argument('-save-label', type=str, default='MLE + DA')
+
     opt = parser.parse_args()
     # TODO: The models we can try:
     #   MLE + Reg: w-mle = 1, w-dis = 1, w-cl1 = w-cl2 = 0, superpose=False + call "train_mle"
@@ -58,7 +63,7 @@ def main():
     #   w-cl2 in {0, 1e-1, 1, 10}
 
     # default device is CUDA
-    opt.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    opt.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # setup the log file
 
@@ -101,8 +106,10 @@ def main():
     print('[Info] Number of parameters: {}'.format(num_params))
 
     """ train the model """  # TODO: pls check whether these two functions work or not on GPUs
-    train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
-    train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
+    if opt.model == 'MLE':
+        train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
+    else:
+        train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
 
 
 def seed_everything(seed=666):
