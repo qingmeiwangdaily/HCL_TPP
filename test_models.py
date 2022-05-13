@@ -16,10 +16,10 @@ num_type = 4
 d_model = 2
 
 thp_model = thp.TransformerHawkes(num_types=num_type, d_model=d_model)
-enc_output2, enc_att2, all_lambda2, prediction2 = thp_model(event_type, time_type)
+enc_output2, enc_att2, all_lambda2, mask2, prediction2 = thp_model(event_type, time_type)
 
 hp_model = lrhp.LowRankHawkes(num_types=num_type, d_model=d_model)
-enc_output1, enc_att1, all_lambda1, prediction1 = hp_model(event_type, time_type)
+enc_output1, enc_att1, all_lambda1, mask1, prediction1 = hp_model(event_type, time_type)
 
 print(enc_output1.shape, enc_output2.shape)
 print(enc_att1.shape, enc_att2.shape)
