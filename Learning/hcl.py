@@ -43,7 +43,7 @@ def seq_contrastive_loss(seq_emb, pos_seq_emb, neg_seq_emb, scalar: float = 0.1)
     num_neg = int(neg_seq_emb.shape[0] / seq_emb.shape[0])
     pos_v = torch.exp(scalar * torch.sum(seq_emb * pos_seq_emb, dim=1, keepdim=True))  # batch x 1
     for k in range(num_neg):
-        neg_seq_emb[k*batch:(k+1)*batch, :] = seq_emb * neg_seq_emb[k*batch:(k+1)*batch, :]
+        neg_seq_emb[k*batch:(k+1)*batch, :] = seq_emb * neg_seq_emb[k*batch:(k+1)*batch, :].clone()
     neg_v = torch.exp(scalar * torch.sum(neg_seq_emb, dim=1))  # (batch * num_neg)
     neg_v = torch.reshape(neg_v, (batch, num_neg))  # batch x num_neg
 
@@ -128,6 +128,9 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
     valid_event_losses = []  # validation log-likelihood
     valid_pred_losses = []  # validation event type prediction accuracy
     valid_rmse = []  # validation event time prediction RMSE
+    test_event_losses = []  # test log-likelihood
+    test_pred_losses = []  # test event type prediction accuracy
+    test_rmse = []  # test event time prediction RMSE
     for epoch_i in range(opt.epoch):
         epoch = epoch_i + 1
         print('[ Epoch', epoch, ']')
@@ -152,6 +155,24 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
         print('  - [Info] Maximum ll: {event: 8.5f}, '
               'Maximum accuracy: {pred: 8.5f}, Minimum RMSE: {rmse: 8.5f}'
               .format(event=max(valid_event_losses), pred=max(valid_pred_losses), rmse=min(valid_rmse)))
+
+        start = time.time()
+        test_event, test_type, test_time = evaluation(model, dataloaders['test'], pred_loss_func, opt)
+        print('  - (Testing)     loglikelihood: {ll: 8.5f}, '
+              'accuracy: {type: 8.5f}, RMSE: {rmse: 8.5f}, '
+              'elapse: {elapse:3.3f} min'
+              .format(ll=test_event, type=test_type, rmse=test_time, elapse=(time.time() - start) / 60))
+
+        valid_event_losses += [valid_event]
+        valid_pred_losses += [valid_type]
+        valid_rmse += [valid_time]
+        test_event_losses += [test_event]
+        test_pred_losses += [test_type]
+        test_rmse += [test_time]
+        max_idx = np.argmax(valid_event_losses)
+        print('  - [Info] Maximum ll: {event: 8.5f}, '
+              'Maximum accuracy: {pred: 8.5f}, Minimum RMSE: {rmse: 8.5f}'
+              .format(event=test_event_losses[max_idx], pred=test_pred_losses[max_idx], rmse=test_rmse[max_idx]))
 
         # logging
         with open(opt.log, 'a') as f:

@@ -8,14 +8,15 @@ from Learning.mle import train_mle
 from Learning.utils import LabelSmoothingLoss
 from data_io import prepare_dataloader
 import os
-
+import random
+import numpy as np
 
 def main():
     """ Main function. """
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data-folder', required=True, type=str, default=os.path.join('tpp-data', 'data_retweet'))
+    parser.add_argument('-data-folder', type=str, default=os.path.join('tpp-data', 'data_retweet'))
 
     parser.add_argument('-epoch', type=int, default=1)
     parser.add_argument('-batch-size', type=int, default=16)
@@ -31,12 +32,14 @@ def main():
     parser.add_argument('-lr', type=float, default=1e-4)
     parser.add_argument('-smooth', type=float, default=0.1)
     parser.add_argument('-log', type=str, default='log.txt')
+    parser.add_argument('-seed', type=int, default=123456)
+    parser.add_argument('-ratio_remove', type=float, default=0.1)
 
     # key parameters we need to try
     parser.add_argument('-w-mle', type=float, default=1)
     parser.add_argument('-w-dis', type=float, default=1)
-    parser.add_argument('-w-cl1', type=float, default=1)
-    parser.add_argument('-w-cl2', type=float, default=1)
+    parser.add_argument('-w-cl1', type=float, default=0)
+    parser.add_argument('-w-cl2', type=float, default=0)
     parser.add_argument('-num-neg', type=int, default=5)
     parser.add_argument('-superpose', type=bool, default=False)
     opt = parser.parse_args()
@@ -55,7 +58,7 @@ def main():
     #   w-cl2 in {0, 1e-1, 1, 10}
 
     # default device is CUDA
-    opt.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    opt.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # setup the log file
 
@@ -63,6 +66,8 @@ def main():
         f.write('Epoch, Log-likelihood, Accuracy, RMSE\n')
 
     print('[Info] parameters: {}'.format(opt))
+
+    seed_everything(opt.seed)
 
     """ prepare dataloader """
     dataloaders, num_types = prepare_dataloader(opt.data_folder, opt.batch_size)
@@ -98,6 +103,16 @@ def main():
     """ train the model """  # TODO: pls check whether these two functions work or not on GPUs
     train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
     train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
+
+
+def seed_everything(seed=666):
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.enabled = False
+    random.seed(seed)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    torch.cuda.manual_seed_all(seed)
 
 
 if __name__ == '__main__':

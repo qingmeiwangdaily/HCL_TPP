@@ -166,7 +166,7 @@ class Encoder(nn.Module):
         Output: batch*seq_len*d_model.
         """
 
-        result = time.unsqueeze(-1) / self.position_vec
+        result = time.unsqueeze(-1) / self.position_vec.cuda()
         # print(time)
         # print(self.position_vec)
         result[:, :, 0::2] = torch.sin(result[:, :, 0::2])
