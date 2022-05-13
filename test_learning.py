@@ -41,7 +41,10 @@ def main():
     parser.add_argument('-w-cl1', type=float, default=0)
     parser.add_argument('-w-cl2', type=float, default=0)
     parser.add_argument('-num-neg', type=int, default=5)
-    parser.add_argument('-superpose', type=bool, default=False)
+
+    #parser.add_argument('-superpose', type=bool, default=False)
+    #不加-superpose，默认传入的preprocess参数为False
+    parser.add_argument('-superpose', default='False', action='store_true')
 
     # for result_log
     parser.add_argument('-model', type=str, default='MLE')
