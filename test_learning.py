@@ -17,7 +17,7 @@ def main():
 
     parser.add_argument('-data-folder', required=True, type=str, default=os.path.join('tpp-data', 'data_retweet'))
 
-    parser.add_argument('-epoch', type=int, default=30)
+    parser.add_argument('-epoch', type=int, default=1)
     parser.add_argument('-batch-size', type=int, default=16)
     parser.add_argument('-d-model', type=int, default=64)
     parser.add_argument('-d-rnn', type=int, default=256)
