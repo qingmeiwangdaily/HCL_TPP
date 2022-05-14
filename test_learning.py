@@ -17,7 +17,7 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data-folder', required=True, type=str, default=os.path.join('tpp-data', 'data_retweet'))
+    parser.add_argument('-data-folder', type=str, default='tpp-data/data_retweet')
 
     parser.add_argument('-epoch', type=int, default=100)
     parser.add_argument('-batch-size', type=int, default=16)
@@ -33,6 +33,7 @@ def main():
     parser.add_argument('-lr', type=float, default=1e-4)
     parser.add_argument('-smooth', type=float, default=0.1)
     parser.add_argument('-log', type=str, default='log.txt')
+    parser.add_argument('-seed', type=int, default=123456)
 
     # key parameters we need to try
     parser.add_argument('-w-mle', type=float, default=1)
