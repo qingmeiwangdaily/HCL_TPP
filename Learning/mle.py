@@ -1,10 +1,10 @@
 import numpy as np
 import torch
 import time
-from data_io import shift_and_superpose, sampling_positive_seqs, sampling_negative_seqs
+from data_io import shift_and_superpose
 from Learning.utils import log_likelihood, type_loss, time_loss, evaluation
 from TPPs.utils import PAD
-import numpy as np
+
 
 def mle_epoch(model, dataloader, optimizer, pred_loss_func, opt):
     """ Maximum likelihood estimation per epoch """
