@@ -44,7 +44,7 @@ def main():
 
     #parser.add_argument('-superpose', type=bool, default=False)
     #不加-superpose，默认传入的superpose参数为False
-    parser.add_argument('-superpose', default='False', action='store_true')
+    parser.add_argument('-superpose', default=False, action='store_true')
 
     # for result_log
     parser.add_argument('-model', type=str, default='MLE')
@@ -128,4 +128,3 @@ def seed_everything(seed=666):
 if __name__ == '__main__':
     # import ipdb; ipdb.set_trace()
     main()
-
