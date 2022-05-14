@@ -4,7 +4,7 @@ import time
 from data_io import shift_and_superpose, sampling_positive_seqs, sampling_negative_seqs
 from Learning.utils import log_likelihood, type_loss, time_loss, evaluation
 from TPPs.utils import PAD
-
+import numpy as np
 
 def mle_epoch(model, dataloader, optimizer, pred_loss_func, opt):
     """ Maximum likelihood estimation per epoch """
@@ -62,6 +62,9 @@ def train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
     valid_event_losses = []  # validation log-likelihood
     valid_pred_losses = []  # validation event type prediction accuracy
     valid_rmse = []  # validation event time prediction RMSE
+    test_event_losses = []  # test log-likelihood
+    test_pred_losses = []  # test event type prediction accuracy
+    test_rmse = []  # test event time prediction RMSE
     for epoch_i in range(opt.epoch):
         epoch = epoch_i + 1
         print('[ Epoch', epoch, ']')
@@ -75,21 +78,41 @@ def train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
 
         start = time.time()
         valid_event, valid_type, valid_time = evaluation(model, dataloaders['val'], pred_loss_func, opt)
-        print('  - (Testing)     loglikelihood: {ll: 8.5f}, '
+        print('  - (Validating)     loglikelihood: {ll: 8.5f}, '
               'accuracy: {type: 8.5f}, RMSE: {rmse: 8.5f}, '
               'elapse: {elapse:3.3f} min'
               .format(ll=valid_event, type=valid_type, rmse=valid_time, elapse=(time.time() - start) / 60))
 
+        start = time.time()
+        test_event, test_type, test_time = evaluation(model, dataloaders['test'], pred_loss_func, opt)
+        print('  - (Testing)     loglikelihood: {ll: 8.5f}, '
+              'accuracy: {type: 8.5f}, RMSE: {rmse: 8.5f}, '
+              'elapse: {elapse:3.3f} min'
+              .format(ll=test_event, type=test_type, rmse=test_time, elapse=(time.time() - start) / 60))
+
         valid_event_losses += [valid_event]
         valid_pred_losses += [valid_type]
         valid_rmse += [valid_time]
+        test_event_losses += [test_event]
+        test_pred_losses += [test_type]
+        test_rmse += [test_time]
+        max_idx = np.argmax(valid_event_losses)
         print('  - [Info] Maximum ll: {event: 8.5f}, '
               'Maximum accuracy: {pred: 8.5f}, Minimum RMSE: {rmse: 8.5f}'
-              .format(event=max(valid_event_losses), pred=max(valid_pred_losses), rmse=min(valid_rmse)))
+              .format(event=test_event_losses[max_idx], pred=test_pred_losses[max_idx], rmse=test_rmse[max_idx]))
 
         # logging
         with open(opt.log, 'a') as f:
             f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
                     .format(epoch=epoch, ll=valid_event, acc=valid_type, rmse=valid_time))
 
+        if epoch_i == opt.epoch - 1:
+            with open('result.log', 'a') as f:
+                paras = 'w_mle' + '-' + str(opt.w_mle) + "; " + 'w_dis' + '-' + str(opt.w_dis) + "; " + 'w_cl1' + "-" + str(opt.w_cl1) + "; " + 'w_cl2' + "-" + str(opt.w_cl2) + "; " + 'superpose' + "-" + str(opt.superpose) + "; " + 'num_neg' + "-" + str(opt.num_neg)
+                f.write('[Info] Model: {}\n'.format(opt.model + ' ' + opt.save_label))
+                f.write('[Info] main parameters: {}\n'.format(paras))
+                f.write('[Info] all parameters: {}\n'.format(opt))
+                f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
+                        .format(epoch=epoch, ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
+                                rmse=test_rmse[max_idx]))
         scheduler.step()
