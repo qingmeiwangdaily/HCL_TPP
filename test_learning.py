@@ -8,6 +8,8 @@ from Learning.mle import train_mle
 from Learning.utils import LabelSmoothingLoss
 from data_io import prepare_dataloader
 import os
+import random
+import numpy as np
 
 
 def main():
@@ -17,7 +19,7 @@ def main():
 
     parser.add_argument('-data-folder', required=True, type=str, default=os.path.join('tpp-data', 'data_retweet'))
 
-    parser.add_argument('-epoch', type=int, default=1)
+    parser.add_argument('-epoch', type=int, default=100)
     parser.add_argument('-batch-size', type=int, default=16)
     parser.add_argument('-d-model', type=int, default=64)
     parser.add_argument('-d-rnn', type=int, default=256)
@@ -40,6 +42,10 @@ def main():
     parser.add_argument('-num-neg', type=int, default=5)
     parser.add_argument('-ratio-remove', type=float, default=0.1)
     parser.add_argument('-superpose', default=False, action='store_true')
+
+    # for result_log
+    parser.add_argument('-model', type=str, default='HCL')
+    parser.add_argument('-save-label', type=str, default='MLE + DA')
     opt = parser.parse_args()
     # TODO: The models we can try:
     #   MLE + Reg: w-mle = 1, w-dis = 1, w-cl1 = w-cl2 = 0, superpose=False + call "train_mle"
@@ -64,6 +70,8 @@ def main():
         f.write('Epoch, Log-likelihood, Accuracy, RMSE\n')
 
     print('[Info] parameters: {}'.format(opt))
+
+    seed_everything(opt.seed)
 
     """ prepare dataloader """
     dataloaders, num_types = prepare_dataloader(opt.data_folder, opt.batch_size)
@@ -99,6 +107,15 @@ def main():
     """ train the model """  # TODO: pls check whether these two functions work or not on GPUs
     train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
     train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
+
+def seed_everything(seed=666):
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.enabled = False
+    random.seed(seed)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    torch.cuda.manual_seed_all(seed)
 
 
 if __name__ == '__main__':

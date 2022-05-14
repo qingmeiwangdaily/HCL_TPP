@@ -90,10 +90,10 @@ def hcl_epoch(model, dataloader, optimizer, pred_loss_func, opt):
         """ backward """
         # event-level contrastive loss
         nce1 = event_contrastive_loss(all_lambda, event_type, non_pad_mask)
-
+        #print(nce1)
         # sequence-level contrastive loss
         nce2 = seq_contrastive_loss(seq_emb, pos_seq_emb, neg_seq_emb)
-
+        #print(nce2)
         # negative log-likelihood
         event_ll, non_event_ll = log_likelihood(all_lambda, event_time, event_type, non_pad_mask)
         event_loss = -torch.sum(event_ll - non_event_ll)
@@ -170,7 +170,9 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
               .format(event=test_event_losses[max_idx], pred=test_pred_losses[max_idx], rmse=test_rmse[max_idx]))
 
         # logging
-        with open(opt.log, 'a') as f:
+        paras = str(opt.save_label) + str(opt.w_mle) + str(opt.w_dis) + str(opt.w_cl1) + str(opt.w_cl2) + str(
+            opt.superpose) + str(opt.num_neg)
+        with open('save_logs/' + paras + '.txt', 'a') as f:
             f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
                     .format(epoch=epoch, ll=valid_event, acc=valid_type, rmse=valid_time))
 
