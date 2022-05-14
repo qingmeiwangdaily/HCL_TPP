@@ -38,7 +38,8 @@ def main():
     parser.add_argument('-w-cl1', type=float, default=1)
     parser.add_argument('-w-cl2', type=float, default=1)
     parser.add_argument('-num-neg', type=int, default=5)
-    parser.add_argument('-superpose', type=bool, default=False)
+    parser.add_argument('-ratio-remove', type=float, default=0.1)
+    parser.add_argument('-superpose', default=False, action='store_true')
     opt = parser.parse_args()
     # TODO: The models we can try:
     #   MLE + Reg: w-mle = 1, w-dis = 1, w-cl1 = w-cl2 = 0, superpose=False + call "train_mle"

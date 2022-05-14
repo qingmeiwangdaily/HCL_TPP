@@ -153,7 +153,19 @@ def reorganize(event_type: torch.Tensor, event_time: torch.Tensor):
     return event_type[:, :len_max], event_time[:, :len_max]
 
 
-def shift_and_superpose(event_type: torch.Tensor, event_time: torch.Tensor):
+def one_step_superpose(event_type: torch.Tensor, event_time: torch.Tensor):
+    batch = event_time.shape[0]
+    shift = int(batch / 2)
+    shift_type = torch.cat((event_type[shift:, :], event_type[:shift, :]), dim=0)
+    shift_time = torch.cat((event_time[shift:, :], event_time[:shift, :]), dim=0)
+    new_type = torch.cat((event_type, shift_type), dim=1)  # batch * (2seq_len)
+    new_time = torch.cat((event_time, shift_time), dim=1)  # batch * (2seq_len)
+    new_type, new_time = sorting(new_type, new_time)
+    new_type, new_time = reorganize(new_type, new_time)
+    return new_type, new_time
+
+
+def shift_and_superpose(event_type: torch.Tensor, event_time: torch.Tensor, num_iter: int = 2):
     """
     Superpose event sequences with their shifted versions
 
@@ -162,22 +174,9 @@ def shift_and_superpose(event_type: torch.Tensor, event_time: torch.Tensor):
     Output: new event_type: batch * (2 * seq_len)
             new event_time: batch * (2 * seq_len)
     """
-    batch = event_time.shape[0]
-    shift = int(batch / 2)
-    shift_type = torch.cat((event_type[shift:, :], event_type[:shift, :]), dim=0)
-    shift_time = torch.cat((event_time[shift:, :], event_time[:shift, :]), dim=0)
-    new_type = torch.cat((event_type, shift_type), dim=1)  # batch * (2seq_len)
-    new_time = torch.cat((event_time, shift_time), dim=1)  # batch * (2seq_len)
-    new_type, new_time = sorting(new_type, new_time)
-    # idx = torch.argsort(new_time, dim=1, descending=False)
-    # for b in range(batch):
-    #     new_time[b, :] = new_time[b, idx[b, :]]
-    #     new_type[b, :] = new_type[b, idx[b, :]]
-    #     tmp_time = new_time[b, idx[b, :]]
-    #     tmp_type = new_type[b, idx[b, :]]
-    #     new_time[b, :] = torch.cat((tmp_time[tmp_type != 0], tmp_time[tmp_type == 0]), dim=0)
-    #     new_type[b, :] = torch.cat((tmp_type[tmp_type != 0], tmp_type[tmp_type == 0]), dim=0)
-    return reorganize(new_type, new_time)
+    for i in range(num_iter):
+        event_type, event_time = one_step_superpose(event_type, event_time)
+    return event_type, event_time
 
 
 def thinning_process_deterministic(event_type: torch.Tensor, event_time: torch.Tensor,

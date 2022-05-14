@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import time
-from data_io import sampling_positive_seqs, sampling_negative_seqs
+from data_io import sampling_positive_seqs, sampling_negative_seqs, shift_and_superpose
 from Learning.utils import log_likelihood, type_loss, time_loss, evaluation
 from TPPs.utils import PAD
 
@@ -11,7 +11,7 @@ def event2seq_embedding(enc_out, non_pad_mask):
     enc_out: event embedding with size batch x seq_len x d_model
     non_pad_mask: with size batch x seq_len x 1
     """
-    seq_emb = torch.sum(enc_out * non_pad_mask, dim=1) / torch.sum(non_pad_mask, dim=1)  # batch * d_model
+    seq_emb = torch.sum(enc_out * non_pad_mask, dim=1) / (torch.sum(non_pad_mask, dim=1) + 1e-6)  # batch * d_model
     return seq_emb
 
 
@@ -65,6 +65,8 @@ def hcl_epoch(model, dataloader, optimizer, pred_loss_func, opt):
         """ prepare data """
         # event_time, time_gap, event_type = map(lambda x: x.to(opt.device), batch)
         event_time, time_gap, event_type = batch[0].to(opt.device), batch[1].to(opt.device), batch[2].to(opt.device)
+        if opt.superpose:
+            event_type, event_time = shift_and_superpose(event_type, event_time)
 
         """ forward """
         optimizer.zero_grad()
