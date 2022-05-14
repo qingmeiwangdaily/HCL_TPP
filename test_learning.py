@@ -17,9 +17,9 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data-folder', type=str, default='tpp-data/data_retweet')
+    parser.add_argument('-data-folder', type=str, default='tpp-data/data_mimic')
 
-    parser.add_argument('-epoch', type=int, default=100)
+    parser.add_argument('-epoch', type=int, default=10)
     parser.add_argument('-batch-size', type=int, default=16)
     parser.add_argument('-d-model', type=int, default=64)
     parser.add_argument('-d-rnn', type=int, default=256)
@@ -106,8 +106,10 @@ def main():
     print('[Info] Number of parameters: {}'.format(num_params))
 
     """ train the model """  # TODO: pls check whether these two functions work or not on GPUs
-    train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
-    train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
+    if opt.model == 'MLE':
+        train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
+    else:
+        train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)
 
 def seed_everything(seed=666):
     torch.backends.cudnn.deterministic = True
