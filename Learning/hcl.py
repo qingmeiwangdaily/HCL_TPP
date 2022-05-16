@@ -92,7 +92,7 @@ def hcl_epoch(model, dataloader, optimizer, pred_loss_func, opt):
         nce1 = event_contrastive_loss(all_lambda, event_type, non_pad_mask)
         #print(nce1)
         # sequence-level contrastive loss
-        nce2 = seq_contrastive_loss(seq_emb, pos_seq_emb, neg_seq_emb)
+        nce2 = seq_contrastive_loss(seq_emb, pos_seq_emb.detach(), neg_seq_emb.detach())
         #print(nce2)
         # negative log-likelihood
         event_ll, non_event_ll = log_likelihood(all_lambda, event_time, event_type, non_pad_mask)
