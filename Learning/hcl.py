@@ -183,7 +183,7 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
                 f.write('[Info] main parameters: {}\n'.format(paras))
                 f.write('[Info] all parameters: {}\n'.format(opt))
                 f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
-                        .format(epoch=epoch, ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
+                        .format(epoch=epoch[max_idx], ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
                                 rmse=test_rmse[max_idx]))
                 f.write('\n\n')
         scheduler.step()
