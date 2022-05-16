@@ -27,8 +27,8 @@ def event_contrastive_loss(all_lambda, types, non_pad_mask):
 
     pos_p = (pos_event_lambda + 1e-8) / (all_event_lambda + 1e-8)  # batch * seq_len * 1
     neg_p = 1 - neg_event_lambda / (all_event_lambda + 1e-8)  # batch * seq_len * num_types
-    cl1 = -torch.mean(torch.log(pos_p) * non_pad_mask)
-    cl2 = -torch.mean(torch.sum(torch.log(neg_p) * non_pad_mask, dim=2))
+    cl1 = -torch.mean(torch.log(pos_p + 1e-8) * non_pad_mask)
+    cl2 = -torch.mean(torch.sum(torch.log(neg_p + 1e-8) * non_pad_mask, dim=2))
     return cl1 + cl2
 
 
@@ -47,7 +47,7 @@ def seq_contrastive_loss(seq_emb, pos_seq_emb, neg_seq_emb, scalar: float = 0.1)
     neg_v = torch.exp(scalar * torch.sum(neg_seq_emb, dim=1))  # (batch * num_neg)
     neg_v = torch.reshape(neg_v, (batch, num_neg))  # batch x num_neg
 
-    all_v = torch.sum(neg_v, dim=1, keepdim=True) + pos_v  # batch x 1
+    all_v = torch.sum(neg_v, dim=1, keepdim=True) + pos_v + 1e-8  # batch x 1
     cl1 = -torch.mean(torch.log(pos_v / all_v))
     cl2 = -torch.mean(torch.sum(torch.log(1 - neg_v / all_v), dim=1))
     return cl1 + cl2
