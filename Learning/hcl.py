@@ -25,8 +25,8 @@ def event_contrastive_loss(all_lambda, types, non_pad_mask):
     neg_event_lambda = all_lambda * (1 - type_mask)  # batch * seq_len * num_types
     all_event_lambda = torch.sum(all_lambda + 1e-8, dim=2, keepdim=True)  # batch * seq_len * 1
 
-    pos_p = (pos_event_lambda + 1e-8) / all_event_lambda  # batch * seq_len * 1
-    neg_p = 1 - neg_event_lambda / all_event_lambda  # batch * seq_len * num_types
+    pos_p = (pos_event_lambda + 1e-8) / (all_event_lambda + 1e-8)  # batch * seq_len * 1
+    neg_p = 1 - neg_event_lambda / (all_event_lambda + 1e-8)  # batch * seq_len * num_types
     cl1 = -torch.mean(torch.log(pos_p) * non_pad_mask)
     cl2 = -torch.mean(torch.sum(torch.log(neg_p) * non_pad_mask, dim=2))
     return cl1 + cl2
