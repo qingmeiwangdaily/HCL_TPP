@@ -40,6 +40,7 @@ class LowRankHawkes(nn.Module):
         Input: batch * seq_len.
         Output: batch * seq_len * seq_len.
         """
+        event_time = event_time / (torch.sqrt(torch.sum(event_time ** 2, dim=1, keepdim=True)) + 1e-8)
         dt = d_time(event_time)
         return torch.exp(self.alpha * dt) * (1 - att_mask)
 

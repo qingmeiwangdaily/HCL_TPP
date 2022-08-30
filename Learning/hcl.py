@@ -32,7 +32,7 @@ def event_contrastive_loss(all_lambda, types, non_pad_mask):
     return cl1 + cl2
 
 
-def seq_contrastive_loss(seq_emb, pos_seq_emb, neg_seq_emb, scalar: float = 0.1):
+def seq_contrastive_loss(seq_emb, pos_seq_emb, neg_seq_emb, scalar: float = 10):
     """
     Sequence level contrastive loss
     seq_emb: batch * d_model
@@ -41,6 +41,9 @@ def seq_contrastive_loss(seq_emb, pos_seq_emb, neg_seq_emb, scalar: float = 0.1)
     """
     batch = seq_emb.shape[0]
     num_neg = int(neg_seq_emb.shape[0] / seq_emb.shape[0])
+    seq_emb = seq_emb / (torch.sqrt(torch.sum(seq_emb ** 2, dim =1, keepdim=True)) + 1e-8)
+    pos_seq_emb = pos_seq_emb / (torch.sqrt(torch.sum(pos_seq_emb ** 2, dim=1, keepdim=True)) + 1e-8)
+    neg_seq_emb = neg_seq_emb / (torch.sqrt(torch.sum(neg_seq_emb ** 2, dim=1, keepdim=True)) + 1e-8)
     pos_v = torch.exp(scalar * torch.sum(seq_emb * pos_seq_emb, dim=1, keepdim=True))  # batch x 1
     for k in range(num_neg):
         neg_seq_emb[k*batch:(k+1)*batch, :] = seq_emb * neg_seq_emb[k*batch:(k+1)*batch, :].clone()
@@ -164,7 +167,7 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
         test_event_losses += [test_event]
         test_pred_losses += [test_type]
         test_rmse += [test_time]
-        max_idx = np.argmax(valid_event_losses)
+        max_idx = np.argmax(valid_pred_losses)
         print('  - [Info] Maximum ll: {event: 8.5f}, '
               'Maximum accuracy: {pred: 8.5f}, Minimum RMSE: {rmse: 8.5f}'
               .format(event=test_event_losses[max_idx], pred=test_pred_losses[max_idx], rmse=test_rmse[max_idx]))
@@ -178,12 +181,17 @@ def train_hcl(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
 
         if epoch_i == opt.epoch - 1:
             with open('result.log', 'a') as f:
-                paras = 'w_mle' + '-' + str(opt.w_mle) + "; " + 'w_dis' + '-' + str(opt.w_dis) + "; " + 'w_cl1' + "-" + str(opt.w_cl1) + "; " + 'w_cl2' + "-" + str(opt.w_cl2) + "; " + 'superpose' + "-" + str(opt.superpose) + "; " + 'num_neg' + "-" + str(opt.num_neg)
+                paras = 'w_mle' + '-' + str(opt.w_mle) + "; " + 'w_dis' + '-' + str(
+                    opt.w_dis) + "; " + 'w_cl1' + "-" + str(opt.w_cl1) + "; " + 'w_cl2' + "-" + str(
+                    opt.w_cl2) + "; " + 'superpose' + "-" + str(opt.superpose) + "; " + 'num_neg' + "-" + str(
+                    opt.num_neg)
                 f.write('[Info] Model: {}\n'.format(opt.model + ' ' + opt.save_label))
                 f.write('[Info] main parameters: {}\n'.format(paras))
                 f.write('[Info] all parameters: {}\n'.format(opt))
                 f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
-                        .format(epoch=epoch[max_idx], ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
+                        .format(epoch=max_idx, ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
                                 rmse=test_rmse[max_idx]))
                 f.write('\n\n')
         scheduler.step()
+
+

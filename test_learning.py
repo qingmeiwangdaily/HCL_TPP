@@ -2,6 +2,7 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
+# import TPPs.lrhp as lrhp
 import TPPs.thp as thp
 from Learning.hcl import train_hcl
 from Learning.mle import train_mle
@@ -17,36 +18,36 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data-folder', type=str, default='tpp-data/data_mimic')
+    parser.add_argument('-data_folder', type=str, default='tpp-data/data_bookorder/fold1')
 
-    parser.add_argument('-epoch', type=int, default=10)
-    parser.add_argument('-batch-size', type=int, default=16)
-    parser.add_argument('-d-model', type=int, default=64)
-    parser.add_argument('-d-rnn', type=int, default=256)
-    parser.add_argument('-d-inner-hid', type=int, default=128)
-    parser.add_argument('-d-k', type=int, default=16)
-    parser.add_argument('-d-v', type=int, default=16)
+    parser.add_argument('-epoch', type=int, default=20)
+    parser.add_argument('-batch_size', type=int, default=8)
+    parser.add_argument('-d_model', type=int, default=64)
+    parser.add_argument('-d_rnn', type=int, default=256)
+    parser.add_argument('-d_inner_hid', type=int, default=128)
+    parser.add_argument('-d_k', type=int, default=16)
+    parser.add_argument('-d_v', type=int, default=16)
 
-    parser.add_argument('-n-head', type=int, default=4)
-    parser.add_argument('-n-layers', type=int, default=4)
+    parser.add_argument('-n_head', type=int, default=4)
+    parser.add_argument('-n_layers', type=int, default=4)
     parser.add_argument('-dropout', type=float, default=0.1)
-    parser.add_argument('-lr', type=float, default=1e-4)
+    parser.add_argument('-lr', type=float, default=1e-3)
     parser.add_argument('-smooth', type=float, default=0.1)
     parser.add_argument('-log', type=str, default='log.txt')
     parser.add_argument('-seed', type=int, default=123456)
 
     # key parameters we need to try
-    parser.add_argument('-w-mle', type=float, default=1)
-    parser.add_argument('-w-dis', type=float, default=1)
-    parser.add_argument('-w-cl1', type=float, default=1)
-    parser.add_argument('-w-cl2', type=float, default=1)
-    parser.add_argument('-num-neg', type=int, default=5)
-    parser.add_argument('-ratio-remove', type=float, default=0.1)
+    parser.add_argument('-w_mle', type=float, default=1.0)
+    parser.add_argument('-w_dis', type=float, default=1.0)
+    parser.add_argument('-w_cl1', type=float, default=0.0)
+    parser.add_argument('-w_cl2', type=float, default=0.0)
+    parser.add_argument('-num_neg', type=int, default=5)
+    parser.add_argument('-ratio_remove', type=float, default=0.2)
     parser.add_argument('-superpose', default=False, action='store_true')
 
     # for result_log
-    parser.add_argument('-model', type=str, default='HCL')
-    parser.add_argument('-save-label', type=str, default='MLE + DA')
+    parser.add_argument('-model', type=str, default='MLE')
+    parser.add_argument('-save_label', type=str, default='MLE_Reg')
     opt = parser.parse_args()
     # TODO: The models we can try:
     #   MLE + Reg: w-mle = 1, w-dis = 1, w-cl1 = w-cl2 = 0, superpose=False + call "train_mle"
@@ -58,9 +59,11 @@ def main():
     #   MLE + HCL : w-mle = 1, w-dis = 1, w-cl1 > 0, w-cl2 > 0, superpose=False + call "train_hcl"
 
     # TODO: Key parameters we need to try (just on one dataset and Transformer Hawkes)
-    #   The number of negative sequence: num-neg in {1, 5, 10}
-    #   w-cl1 in {0, 1e-1, 1, 10}
-    #   w-cl2 in {0, 1e-1, 1, 10}
+    #   The number of negative sequence: num-neg in {5, 10, 20, 50}
+    #   w-cl1 in {1e-2, 1e-1, 1, 10}
+    #   w-cl2 in {1, 10, 100}
+    #   ratio-remove in {1e-1, 0.2, 0.3, 0.4, 0.5}
+    #   num_iter in {2, 5}
 
     # default device is CUDA
     opt.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -89,6 +92,10 @@ def main():
         d_v=opt.d_v,
         dropout=opt.dropout,
     )
+    # model = lrhp.LowRankHawkes(
+    #     num_types=num_types,
+    #     d_model=opt.d_model,
+    #  )
     model.to(opt.device)
     """ optimizer and scheduler """
     optimizer = optim.Adam(filter(lambda x: x.requires_grad, model.parameters()),
@@ -104,7 +111,6 @@ def main():
     """ number of parameters """
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('[Info] Number of parameters: {}'.format(num_params))
-
     """ train the model """  # TODO: pls check whether these two functions work or not on GPUs
     if opt.model == 'MLE':
         train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt)

@@ -229,8 +229,9 @@ def rmse(real: np.ndarray, est: np.ndarray) -> np.ndarray:
     :param est: an array with the same size
     :return: the rmse
     """
-    return np.sum(np.abs(real - est) ** 2) / np.sum(np.abs(real) ** 2)
-
+    # return np.sum(np.abs(real - est) ** 2) / np.sum(np.abs(real) ** 2)
+    # return np.sum(||est - real||_2) /sum(||real||_2)
+    return np.linalg.norm((est - real), ord = 2)/np.linalg.norm(real, ord = 2)
 np.random.seed(1)
 # predefined Hawkes process model
 time_length = 20.0
@@ -247,11 +248,11 @@ alpha_real = np.array([[0.1, 0.1, 0.0, 0.0, 0.0],
 
 """Implement intensity function + Simulate a set of event sequences"""
 simulated_sequences = hawkes_simulator(num_seqs=num_sequences, time_interval=time_length, mu=mu_real, alpha=alpha_real)
-with open('./data_retweet/train.pkl', 'wb') as f:
+with open('./tpp-data/data_retweet/train.pkl', 'wb') as f:
     pickle.dump(simulated_sequences, f)
 
 """Learning Hawkes process by MLE"""
-with open('./data_retweet/train.pkl', 'rb') as f:
+with open('./tpp-data/data_retweet/train.pkl', 'rb') as f:
     training_sequences = pickle.load(f, encoding='latin-1')
 # learning by given sequences
 mu_est1, alpha_est1 = hawkes_mle_learner(sequences=training_sequences, dim=d, num_iter=num_em_iter)

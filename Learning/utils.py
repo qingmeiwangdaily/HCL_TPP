@@ -153,5 +153,6 @@ def evaluation(model, dataloader, pred_loss_func, opt):
             total_num_event += event_type.ne(PAD).sum().item()
             total_num_pred += event_type.ne(PAD).sum().item() - event_time.shape[0]
 
-    rmse = np.sqrt(total_time_se / total_num_pred)
+    rmse = np.linalg.norm(np.array([total_time_se - total_num_pred]), ord=2) / np.linalg.norm(np.array([total_time_se]), ord=2)
     return total_event_ll / total_num_event, total_event_rate / total_num_pred, rmse
+

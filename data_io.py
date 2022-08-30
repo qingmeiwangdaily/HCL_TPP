@@ -44,6 +44,7 @@ def pad_time(insts: List[List], pad_value: int = DEFAULT_PAD) -> torch.Tensor:
     batch_seq = np.array([
         inst + [pad_value] * (max_len - len(inst))
         for inst in insts])
+    print(max_len)
     return torch.tensor(batch_seq, dtype=torch.float32)
 
 
@@ -57,6 +58,7 @@ def pad_type(insts: List[List], pad_value: int = DEFAULT_PAD) -> torch.Tensor:
     batch_seq = np.array([
         inst + [pad_value] * (max_len - len(inst))
         for inst in insts])
+    print(max_len)
     return torch.tensor(batch_seq, dtype=torch.long)
 
 
@@ -102,9 +104,10 @@ def load_data(name: str, dict_name: str) -> Tuple[List[List[Dict]], int]:
     """
     with open(name, 'rb') as f:
         data = pickle.load(f, encoding='latin-1')
-        num_types = data['dim_process']
+        num_types = int(data['dim_process'])
         data = data[dict_name]
-    return data, int(num_types)
+    # return data, int(num_types)
+    return data, num_types
 
 
 def prepare_dataloader(data_folder_name: str, batch_size: int) -> Tuple[Dict[str, torch.utils.data.DataLoader], int]:
@@ -206,6 +209,8 @@ def thinning_process_deterministic(event_type: torch.Tensor, event_time: torch.T
 
 
 def thinning_process_random(event_type: torch.Tensor, event_time: torch.Tensor, ratio_remove: float = 0.5):
+    # import pdb;
+    # pdb.set_trace()
     """
     Randomly thinning event sequences with a relatively-high removal ratio
         Input: event_type: batch * seq_len;

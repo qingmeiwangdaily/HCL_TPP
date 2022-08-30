@@ -51,8 +51,8 @@ def mle_epoch(model, dataloader, optimizer, pred_loss_func, opt):
         total_num_event += event_type.ne(PAD).sum().item()
         # we do not predict the first event
         total_num_pred += event_type.ne(PAD).sum().item() - event_time.shape[0]
-
-    rmse = np.sqrt(total_time_se / total_num_pred)
+    rmse = np.linalg.norm(np.array([total_time_se - total_num_pred]), ord=2) / np.linalg.norm(np.array([total_time_se]), ord=2)
+    # rmse = np.sqrt(total_time_se / total_num_pred)
     return total_event_ll / total_num_event, total_event_rate / total_num_pred, rmse
 
 
@@ -96,7 +96,7 @@ def train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
         test_event_losses += [test_event]
         test_pred_losses += [test_type]
         test_rmse += [test_time]
-        max_idx = np.argmax(valid_event_losses)
+        max_idx = np.argmax(valid_pred_losses)
         print('  - [Info] Maximum ll: {event: 8.5f}, '
               'Maximum accuracy: {pred: 8.5f}, Minimum RMSE: {rmse: 8.5f}'
               .format(event=test_event_losses[max_idx], pred=test_pred_losses[max_idx], rmse=test_rmse[max_idx]))
@@ -113,6 +113,6 @@ def train_mle(model, dataloaders, optimizer, scheduler, pred_loss_func, opt):
                 f.write('[Info] main parameters: {}\n'.format(paras))
                 f.write('[Info] all parameters: {}\n'.format(opt))
                 f.write('{epoch}, {ll: 8.5f}, {acc: 8.5f}, {rmse: 8.5f}\n'
-                        .format(epoch=epoch, ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
+                        .format(epoch=max_idx, ll=test_event_losses[max_idx], acc=test_pred_losses[max_idx],
                                 rmse=test_rmse[max_idx]))
         scheduler.step()
