@@ -49,22 +49,7 @@ def main():
     parser.add_argument('-model', type=str, default='MLE')
     parser.add_argument('-save_label', type=str, default='MLE_Reg')
     opt = parser.parse_args()
-    # TODO: The models we can try:
-    #   MLE + Reg: w-mle = 1, w-dis = 1, w-cl1 = w-cl2 = 0, superpose=False + call "train_mle"
-    #   MLE + DA: w-mle = 1, w-dis = 1, w-cl1 = w-cl2 = 0, superpose=True + call "train_mle"
-    #   Dis: w-mle = 0, w-dis = 1, w-cl1 = w-cl2 = 0, superpose=False + call "train_mle"
-    #   HCL (event only): w-mle = 0, w-dis = 1, w-cl1 > 0, w-cl2 = 0, superpose=False + call "train_hcl"
-    #   HCL (seq only): w-mle = 0, w-dis = 1, w-cl1 = 0, w-cl2 > 0, superpose=False + call "train_hcl"
-    #   HCL (both): w-mle = 0, w-dis = 1, w-cl1 > 0, w-cl2 > 0, superpose=False + call "train_hcl"
-    #   MLE + HCL : w-mle = 1, w-dis = 1, w-cl1 > 0, w-cl2 > 0, superpose=False + call "train_hcl"
-
-    # TODO: Key parameters we need to try (just on one dataset and Transformer Hawkes)
-    #   The number of negative sequence: num-neg in {5, 10, 20, 50}
-    #   w-cl1 in {1e-2, 1e-1, 1, 10}
-    #   w-cl2 in {1, 10, 100}
-    #   ratio-remove in {1e-1, 0.2, 0.3, 0.4, 0.5}
-    #   num_iter in {2, 5}
-
+   
     # default device is CUDA
     opt.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
