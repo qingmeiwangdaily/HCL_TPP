@@ -18,10 +18,10 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-data_folder', type=str, default='tpp-data/data_bookorder/fold1')
+    parser.add_argument('-data_folder', type=str, default='tpp-data/data_missing')
 
     parser.add_argument('-epoch', type=int, default=20)
-    parser.add_argument('-batch_size', type=int, default=8)
+    parser.add_argument('-batch_size', type=int, default=4)
     parser.add_argument('-d_model', type=int, default=64)
     parser.add_argument('-d_rnn', type=int, default=256)
     parser.add_argument('-d_inner_hid', type=int, default=128)
@@ -79,6 +79,7 @@ def main():
 
     """ prepare dataloader """
     dataloaders, num_types = prepare_dataloader(opt.data_folder, opt.batch_size)
+    print(num_types)
 
     """ prepare model """
     model = thp.TransformerHawkes(

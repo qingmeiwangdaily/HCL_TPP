@@ -1,1 +1,0 @@
-CUDA_VISIBLE_DEVICES=2  python test_learning.py -model 'MLE' -save-label 'MLE + DA' -data-folder 'tpp-data/data_retweet' -w-mle 1 -w-dis 1 -w-cl1 0 -w-cl2 0 -superpose False
