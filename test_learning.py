@@ -49,7 +49,7 @@ def main():
     parser.add_argument('-model', type=str, default='MLE')
     parser.add_argument('-save_label', type=str, default='MLE_Reg')
     opt = parser.parse_args()
-   
+
     # default device is CUDA
     opt.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

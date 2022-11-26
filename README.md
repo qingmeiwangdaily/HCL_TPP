@@ -1,7 +1,17 @@
-## Dependencies
+# HCL_TPP
 
-* [PyTorch] - Version: 1.10.0
-* [Python] - Version: 3.9.0
+***AAA2023 Hierarchical Contrastive Learning for Temporal Point Processes***
+
+In this work, we develop a novel hierarchical contrastive (HCL) learning method for temporal point processes, which provides a new regularizer of maximum likelihood estimation. In principle, our HCL considers the noise contrastive estimation (NCE) problem at the event-level and that at the sequence-level jointly. Given a sequence, the event-level NCE maximizes the probability of each observed event given its history while penalizing the conditional probabilities of the unobserved events. At the same time, we generate positive and negative event sequences from the observed sequence and maximize the discrepancy between their likelihoods through the sequence-level NCE. Instead of using time-consuming simulation methods, we generate the positive and negative sequences via a simple but efficient model-guided thinning process.
+
+![1](/Users/maywang/Desktop/1.jpg)
+
+
+
+### Dependencies
+
+* PyTorch == 1.10.0
+* Python ==  3.9.0
 
 
 ## Training & Evaluation(take dataset'Hawkes' for example)
@@ -54,7 +64,7 @@ python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HC
 ```
 
 
-## parameters
+## Parameters
 
 
 ```tpp-data``` is the dataset.
@@ -64,7 +74,6 @@ python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HC
 
 
 ```TPPS```is the model chosen for the backbone of training.
-
 
 ```num_neg``` is the number of negative sequence for contrastive learning. The default value of Hawkes dataset is 20.
 
@@ -76,5 +85,4 @@ python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HC
 
 
 ```ratio_remove ``` corresponds to the ration of removing events of per sequence when generate negative and positive sequence . The default value is 0.4.
-
 
