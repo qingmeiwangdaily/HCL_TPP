@@ -90,5 +90,5 @@ python test_learning.py  -batch_size 4  -num_neg 20 -ratio_remove 0.4 -model 'HC
 ```wcl2``` corresponds to the weight of event level contrastive learning loss. The default value is 1.
 
 
-```ratio_remove ``` corresponds to the ration of removing events of per sequence when generate negative and positive sequence . The default value is 0.4.
+```ratio_remove ``` corresponds to the ratio of removing events of per sequence when generate negative and positive sequence . The default value is 0.4.
 
