@@ -5,12 +5,19 @@
 In this work, we develop a novel hierarchical contrastive (HCL) learning method for temporal point processes, which provides a new regularizer of maximum likelihood estimation. In principle, our HCL considers the noise contrastive estimation (NCE) problem at the event-level and that at the sequence-level jointly. Given a sequence, the event-level NCE maximizes the probability of each observed event given its history while penalizing the conditional probabilities of the unobserved events. At the same time, we generate positive and negative event sequences from the observed sequence and maximize the discrepancy between their likelihoods through the sequence-level NCE. Instead of using time-consuming simulation methods, we generate the positive and negative sequences via a simple but efficient model-guided thinning process.
 ![image](https://github.com/qingmeiwangdaily/HCL_TPP/blob/master/HCL_TPP.jpg)
 
+## Reference
+If you use this code as part of any published research, please acknowledge the following paper (it encourages researchers who publish their code!):
 
-
-
+@article{wang2023hierarchical,
+  title={Hierarchical Contrastive Learning for Temporal Point Processes},
+  author={Wang, Qingmei and Cheng, Minjie and Yuan, Shen and Xu, Hongteng},
+  year={2023}
+}
+## Instructions
+Here are the instructions to use the code base
 
 ### Dependencies
-
+This code is written in python. To use it you will need:
 * PyTorch == 1.10.0
 * Python ==  3.9.0
 
