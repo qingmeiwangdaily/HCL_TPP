@@ -6,7 +6,7 @@ In this work, we develop a novel hierarchical contrastive (HCL) learning method 
 ![image](https://github.com/qingmeiwangdaily/HCL_TPP/blob/master/HCL_TPP.jpg)
 
 ## Reference
-If you use this code as part of any published research, please acknowledge the following paper (it encourages researchers who publish their code!):
+If you use this code as part of any published research, please acknowledge the following paper:
 ```
   @article{wang2023hierarchical,
   title={Hierarchical Contrastive Learning for Temporal Point Processes},
