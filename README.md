@@ -7,12 +7,13 @@ In this work, we develop a novel hierarchical contrastive (HCL) learning method 
 
 ## Reference
 If you use this code as part of any published research, please acknowledge the following paper (it encourages researchers who publish their code!):
-
-@article{wang2023hierarchical,
+```
+  @article{wang2023hierarchical,
   title={Hierarchical Contrastive Learning for Temporal Point Processes},
   author={Wang, Qingmei and Cheng, Minjie and Yuan, Shen and Xu, Hongteng},
   year={2023}
 }
+```
 ## Instructions
 Here are the instructions to use the code base
 
